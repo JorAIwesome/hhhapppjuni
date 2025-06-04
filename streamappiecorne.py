@@ -27,54 +27,10 @@ attempt = 0
 timeout = 20
 
 
-sleutel = os.environ['OPENAI_KEY']
-client = OpenAI(
-    api_key=sleutel,
-)
-
-# Function to read a sheet and trim based on first column's content
-def read_clean_sheet(file_path, sheet_name):
-    # Read full sheet
-    df = pd.read_excel(file_path, sheet_name=sheet_name)
-    
-    # Skip the second row by dropping it (assuming row 0 = header, row 1 = skip)
-    df.reset_index(drop=True, inplace=True)
-    df = df.iloc[1:,:]
-
-    # Determine the index of the first invalid row (NaN, empty string, or space)
-    first_col = df.iloc[1:, 0]
-    invalid_mask = first_col.isna() | (first_col.astype(str).str.strip() == "")
-    if invalid_mask.any():
-        end_index = invalid_mask.idxmax()  # index of the first True
-        df = df.loc[:end_index - 1]  # exclude the invalid row
-    else:
-        # If no invalid row found, keep the full DataFrame
-        pass
-        
-    return df
-
-# List of sheet names
-sheet_names = ["west 1", "west 2", "west3bg", "zuid", "oost 1", "oost 2", "oost3bg", "aanleun"]
-
-# File path
-file_path = f"Roosterdata HHH_{REFERENCE_MONTH}.xlsx"
-
-# Load all sheets dynamically
-dfs = {name: read_clean_sheet(file_path, name) for name in sheet_names}
-
-emp_file = pd.concat(
-    [df.assign(filiaal=name) for name, df in dfs.items()],
-    ignore_index=True
-)
-
-emp_file = pd.DataFrame(emp_file)
-emp_file['filiaal'] = emp_file['filiaal'].str.replace(' ', '', regex=False).str.lower() # converteer all sheetnamen naar gestandaardiseerde afdelingnamen. 
-
-emp_num  = emp_file.shape[0]
-emp_num_split = len(emp_file['harde wens'].str.cat(sep=';', na_rep='NaN').split(';'))
-
-#print(emp_file.columns)
-#print(emp_file[emp_file["naam"] == "Aafke de Boer"]["contract uren"])
+#sleutel = os.environ['OPENAI_KEY']
+#client = OpenAI(
+#    api_key=sleutel,
+#)
 
 st.title("📝 Penalty Factor Configuratie naar Excel")
 st.markdown("Pas de waarden hieronder aan en genereer een Excel-bestand met de configuratie.")
